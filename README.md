@@ -1,0 +1,3 @@
+# SDL2 Base Code
+
+Minimum required for me to get SDL2 running on VScode. I absolutly hate getting libraries for C with VScode. Always a pain. I might be doing something wrong...
