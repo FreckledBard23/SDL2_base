@@ -27,34 +27,9 @@ void delay(float number_of_seconds)
 
 Uint32 pixels[screenx * screeny];
 
-void draw_line(int x1, int y1, int x2, int y2, uint32_t color) {
-    int dx = x2 - x1;
-    int dy = y2 - y1;
-    int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
-
-    float xIncrement = (float)dx / steps;
-    float yIncrement = (float)dy / steps;
-
-    float x = x1;
-    float y = y1;
-
-    for (int i = 0; i <= steps; ++i) {
-        int pixelX = (int)x;
-        int pixelY = (int)y;
-
-        // Check if the pixel coordinates are within the image bounds
-        if (pixelX >= 0 && pixelX < screenx && pixelY >= 0 && pixelY < screeny) {
-            int index = pixelY * screenx + pixelX;
-            pixels[index] = color;
-        }
-
-        x += xIncrement;
-        y += yIncrement;
-
-        if(SDL_clamp(x, 0, screenx - 1) != x || SDL_clamp(y, 0, screeny - 1) != y) {
-            return;
-        }
-    }
+void draw_line(int x1, int y1, int x2, int y2, uint32_t color, SDL_Renderer * render) {
+	SDL_SetRenderDrawColor(render, (color & 0xFF000000) >> 24, (color & 0xFF0000) >> 16, (color & 0xFF00) >> 8, color & 0xFF);
+	SDL_RenderDrawLine(render, x1, y1, x2, y2);
 }
 
 void setPixel(Uint32 color, int x, int y){
@@ -95,8 +70,6 @@ int main(int argc, char* argv[]) {
 
     SDL_Event event;
 
-    clear_screen(0xFF303030);
-
     while (!quit) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -119,7 +92,12 @@ int main(int argc, char* argv[]) {
         SDL_RenderCopy(renderer, texture, NULL, NULL);
           
             //----------Render code here----------//
-            
+	    clear_screen(0x501010);
+	    draw_line(10, 20, 500, 600, 0xFF00FFFF, renderer);
+	    
+	    SDL_Vertex quad_verts[] = {{{20, 20}, {0xff, 0, 0, 0xff}}, {{20, 200}, {0xff, 0xff, 0, 0xff}}, {{200, 200}, {0, 0xff, 0, 0xff}}, {{200, 20}, {0, 0xff, 0xff, 0xff}}};
+	    int indices[] = {0, 1, 2, 0, 2, 3}; //draws 2 triangles: 0 1 and 2, and 0 2 and 3
+	    SDL_RenderGeometry(renderer, NULL, quad_verts, 4, indices, 6);
 
         // Update the screen
         SDL_RenderPresent(renderer);
